@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const Stripe = require("stripe");
+const sendBooking = require("./telegram");
 
 const app = express();
 
@@ -76,6 +77,30 @@ app.post("/create-checkout-session", async (req, res) => {
       available: true
     }
   ]);
+});
+
+app.post("/submit-booking", async (req, res) => {
+  try {
+
+    const bookingData = req.body;
+
+    await sendBooking(bookingData);
+
+    res.json({
+      success: true,
+      message: "Booking sent to Telegram"
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
+
+  }
 });
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Server running"));
