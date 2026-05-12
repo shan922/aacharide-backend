@@ -103,27 +103,33 @@ app.post("/create-checkout-session", async (req, res) => {
   ]);
 });
 
-app.post("/submit-booking", async (req, res) => {
+app.post("/submit-booking", upload.single("license"), async (req, res) => {
   try {
 
-    const bookingData = req.body;
+    const licenseUrl =
+      "https://aacharide-backend.onrender.com/uploads/" + req.file.filename;
 
-    await sendBooking(bookingData);
+    const bookingData = {
+      name: req.body.name,
+      phone: req.body.phone,
+      location: req.body.location,
+      time: req.body.time,
+      bike: req.body.bike,
+      days: req.body.days,
+      total: req.body.total,
+      license: licenseUrl,
+      payment: "Pending"
+    };
+
+    // ❌ DO NOT SEND TELEGRAM HERE
 
     res.json({
       success: true,
-      message: "Booking sent to Telegram"
+      bookingData
     });
 
   } catch (err) {
-
-    console.log(err);
-
-    res.status(500).json({
-      success: false,
-      error: err.message
-    });
-
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -131,33 +137,42 @@ app.post("/submit-slip", upload.single("slip"), async (req, res) => {
 
   try {
 
+    const slipUrl =
+      "https://aacharide-backend.onrender.com/uploads/" + req.file.filename;
+
     const bookingData = JSON.parse(req.body.bookingData);
 
-    const slipUrl =
-      "https://aacharide-backend.onrender.com/uploads/" +
-      req.file.filename;
-
-    const fullData = {
+    const finalData = {
       ...bookingData,
-      payment: "Bank Transfer",
-      slip: slipUrl
+      slip: slipUrl,
+      payment: "Bank Transfer"
     };
 
-    await sendBooking(fullData);
+    await sendBooking(finalData);
 
-    res.json({
-      success: true
-    });
+    res.json({ success: true });
 
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 
-    console.log(err);
+});
 
-    res.status(500).json({
-      success: false,
-      error: err.message
+app.post("/stripe-success", async (req, res) => {
+
+  try {
+
+    const bookingData = req.body;
+
+    await sendBooking({
+      ...bookingData,
+      payment: "Stripe Paid"
     });
 
+    res.json({ success: true });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 
 });
