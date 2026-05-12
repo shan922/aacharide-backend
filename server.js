@@ -2,6 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const Stripe = require("stripe");
 const sendBooking = require("./telegram");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
 const app = express();
 
@@ -10,6 +13,27 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 app.use(cors());
 app.use(express.json());
+
+// CREATE uploads FOLDER IF NOT EXISTS
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
+
+// MULTER STORAGE
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage });
+
+// ALLOW ACCESS TO UPLOADED FILES
+app.use("/uploads", express.static("uploads"));
 
 // CREATE PAYMENT SESSION
 app.post("/create-checkout-session", async (req, res) => {
@@ -101,6 +125,41 @@ app.post("/submit-booking", async (req, res) => {
     });
 
   }
+});
+
+app.post("/submit-slip", upload.single("slip"), async (req, res) => {
+
+  try {
+
+    const bookingData = JSON.parse(req.body.bookingData);
+
+    const slipUrl =
+      "https://aacharide-backend.onrender.com/uploads/" +
+      req.file.filename;
+
+    const fullData = {
+      ...bookingData,
+      payment: "Bank Transfer",
+      slip: slipUrl
+    };
+
+    await sendBooking(fullData);
+
+    res.json({
+      success: true
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
+
+  }
+
 });
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Server running"));
