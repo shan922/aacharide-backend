@@ -65,38 +65,38 @@ app.post("/create-checkout-session", async (req, res) => {
  app.get("/bikes", (req, res) => {
   res.json([
     {
-      name: "AIRBLADE Black",
-      price: 150,
+      name: "AIRBLADE White",
+      price: 260,
       image: "https://aachaaride.netlify.app/images/bike1.jpg",
       available: true
     },
     {
-      name: "AIRBLADE Red",
-      price: 150,
+      name: "AIRBLADE Black",
+      price: 260,
       image: "https://aachaaride.netlify.app/images/bike2.jpg",
       available: true
     },
     {
-      name: "AIRBLADE White",
-      price: 150,
+      name: "AIRBLADE Silver",
+      price: 260,
       image: "https://aachaaride.netlify.app/images/bike3.jpg",
       available: true
     },
     {
-      name: "AIRBLADE Blue",
-      price: 150,
+      name: "AIRBLADE Grey",
+      price: 260,
       image: "https://aachaaride.netlify.app/images/bike4.jpg",
       available: true
     },
     {
-      name: "AIRBLADE Grey",
-      price: 150,
+      name: "AIRBLADE White",
+      price: 260,
       image: "https://aachaaride.netlify.app/images/bike5.jpg",
       available: true
     },
     {
-      name: "AIRBLADE Silver",
-      price: 150,
+      name: "AIRBLADE Black",
+      price: 260,
       image: "https://aachaaride.netlify.app/images/bike6.jpg",
       available: true
     }
