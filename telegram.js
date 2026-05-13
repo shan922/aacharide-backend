@@ -20,32 +20,46 @@ async function sendBooking(data) {
 
 💰 Total: MVR ${data.total}
 
-💳 Payment: ${data.payment || "Not set"}
-⏰ Time: ${data.time || "Not set"}
+💳 Payment: ${data.payment}
+⏰ Time: ${data.time}
 `;
 
-  try {
+  const media = [];
 
-    // 1. LICENSE IMAGE
-    if (data.license) {
-      await bot.sendPhoto(CHAT_ID, data.license, {
-        caption: "🪪 LICENSE PHOTO"
-      });
-    }
-
-    // 2. PAYMENT SLIP IMAGE
-    if (data.slip) {
-      await bot.sendPhoto(CHAT_ID, data.slip, {
-        caption: "🧾 PAYMENT SLIP"
-      });
-    }
-
-    // 3. FULL BOOKING DETAILS
-    await bot.sendMessage(CHAT_ID, caption);
-
-  } catch (err) {
-    console.log("Telegram error:", err.message);
+  // LICENSE PHOTO
+  if (data.license) {
+    media.push({
+      type: "photo",
+      media: data.license,
+      caption: caption
+    });
   }
+
+  // PAYMENT SLIP
+  if (data.slip) {
+    media.push({
+      type: "photo",
+      media: data.slip
+    });
+  }
+
+  // SEND GROUP
+  if (media.length > 0) {
+
+    await bot.sendMediaGroup(
+      CHAT_ID,
+      media
+    );
+
+  } else {
+
+    await bot.sendMessage(
+      CHAT_ID,
+      caption
+    );
+
+  }
+
 }
 
 module.exports = sendBooking;
